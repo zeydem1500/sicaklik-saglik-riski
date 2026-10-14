@@ -197,6 +197,7 @@ weatherForm.addEventListener("submit", function (event) {
     "veya doğrulanmış sağlık riski tahmini değildir.";
 });
 
+
 const fetchWeatherButton = document.getElementById("fetch-weather");
 const weatherMessage = document.getElementById("weather-message");
 
@@ -253,6 +254,40 @@ fetchWeatherButton.addEventListener("click", async function () {
       throw new Error("Hava durumu verileri beklenen biçimde değil.");
     }
 
+    // 2.1. PM2.5 hava kalitesi verisini al.
+    let pm25Info = "PM2.5 verisi şu anda alınamadı.";
+
+    try {
+      const airQualityUrl =
+        "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" +
+        place.latitude +
+        "&longitude=" +
+        place.longitude +
+        "&current=pm2_5" +
+        "&timezone=auto";
+
+      const airQualityResponse = await fetch(airQualityUrl);
+
+      if (!airQualityResponse.ok) {
+        throw new Error("Hava kalitesi verisi alınamadı.");
+      }
+
+      const airQualityData = await airQualityResponse.json();
+      const pm25Value = airQualityData.current?.pm2_5;
+
+      if (Number.isFinite(pm25Value)) {
+        pm25Input.value = pm25Value;
+        pm25Info =
+          "PM2.5: " + pm25Value + " µg/m³. Ölçüm zamanı: " +
+          airQualityData.current.time + ".";
+      } else {
+        pm25Input.value = "";
+      }
+    } catch (error) {
+      pm25Input.value = "";
+    }
+
+
     // 3. Gelen değerleri form alanlarına yerleştir.
     cityInput.value = place.name;
     temperatureInput.value = weatherData.current.temperature_2m;
@@ -260,18 +295,21 @@ fetchWeatherButton.addEventListener("click", async function () {
 
     const measuredAt = weatherData.current.time || "bilinmiyor";
 
+    
     weatherMessage.textContent =
       place.name +
-      " için veriler alındı. Ölçüm zamanı: " +
+      " için hava durumu verileri alındı. Ölçüm zamanı: " +
       measuredAt +
-      ". Şimdi Riski değerlendir düğmesine basabilirsiniz.";
+      ". " +
+      pm25Info +
+      " Risk değerlendirmesi için Riski değerlendir düğmesine basın.";
 
+    
     dataSource.textContent =
       "Hava durumu kaynağı: Open-Meteo. " +
-      "Veriler " +
-      measuredAt +
-      " zamanı için gösterilmiştir. " +
-      "PM2.5 verisi bu istekte alınmamıştır.";
+      "Sıcaklık ve nem zamanı: " + measuredAt + ". " +
+      pm25Info +
+      " PM2.5 verisi hava kalitesi modelinden alınır ve mevcut risk seviyesine dahil edilmez.";
   } catch (error) {
     weatherMessage.textContent =
       error.message ||
