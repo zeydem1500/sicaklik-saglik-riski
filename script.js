@@ -196,3 +196,87 @@ weatherForm.addEventListener("submit", function (event) {
     "Bu sonuç eğitim amaçlı bir göstergedir; tıbbi teşhis " +
     "veya doğrulanmış sağlık riski tahmini değildir.";
 });
+
+const fetchWeatherButton = document.getElementById("fetch-weather");
+const weatherMessage = document.getElementById("weather-message");
+
+fetchWeatherButton.addEventListener("click", async function () {
+  const city = cityInput.value.trim();
+
+  if (!city) {
+    weatherMessage.textContent = "Lütfen önce bir şehir adı girin.";
+    return;
+  }
+
+  fetchWeatherButton.disabled = true;
+  weatherMessage.textContent = "Hava durumu verileri alınıyor...";
+
+  try {
+    // 1. Şehir adını koordinatlara dönüştür.
+    const geoUrl =
+      "https://geocoding-api.open-meteo.com/v1/search?name=" +
+      encodeURIComponent(city) +
+      "&count=1&language=tr&format=json";
+
+    const geoResponse = await fetch(geoUrl);
+
+    if (!geoResponse.ok) {
+      throw new Error("Şehir arama servisine ulaşılamadı.");
+    }
+
+    const geoData = await geoResponse.json();
+
+    if (!geoData.results || geoData.results.length === 0) {
+      throw new Error("Şehir bulunamadı. Şehir adını kontrol edin.");
+    }
+
+    const place = geoData.results[0];
+
+    // 2. Koordinatlarla güncel hava durumunu al.
+    const weatherUrl =
+      "https://api.open-meteo.com/v1/forecast?latitude=" +
+      place.latitude +
+      "&longitude=" +
+      place.longitude +
+      "&current=temperature_2m,relative_humidity_2m" +
+      "&timezone=auto";
+
+    const weatherResponse = await fetch(weatherUrl);
+
+    if (!weatherResponse.ok) {
+      throw new Error("Hava durumu verisi alınamadı.");
+    }
+
+    const weatherData = await weatherResponse.json();
+
+    if (!weatherData.current) {
+      throw new Error("Hava durumu verileri beklenen biçimde değil.");
+    }
+
+    // 3. Gelen değerleri form alanlarına yerleştir.
+    cityInput.value = place.name;
+    temperatureInput.value = weatherData.current.temperature_2m;
+    humidityInput.value = weatherData.current.relative_humidity_2m;
+
+    const measuredAt = weatherData.current.time || "bilinmiyor";
+
+    weatherMessage.textContent =
+      place.name +
+      " için veriler alındı. Ölçüm zamanı: " +
+      measuredAt +
+      ". Şimdi Riski değerlendir düğmesine basabilirsiniz.";
+
+    dataSource.textContent =
+      "Hava durumu kaynağı: Open-Meteo. " +
+      "Veriler " +
+      measuredAt +
+      " zamanı için gösterilmiştir. " +
+      "PM2.5 verisi bu istekte alınmamıştır.";
+  } catch (error) {
+    weatherMessage.textContent =
+      error.message ||
+      "Bir hata oluştu. Lütfen tekrar deneyin.";
+  } finally {
+    fetchWeatherButton.disabled = false;
+  }
+});
