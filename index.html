@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sıcaklık, nem ve hava kalitesi verileriyle çevresel sağlık riskini inceleyen eğitim amaçlı uygulama.">
+  <link rel="stylesheet" href="style.css">
+  <title>Sıcaklık ve Sağlık Risk Göstergesi</title>
+</head>
+
+<body>
+  <header>
+    <h1>Sıcaklık ve Sağlık Risk Göstergesi</h1>
+    <p>
+      Hava koşullarını inceleyin ve sıcaklık kaynaklı
+      çevresel riskleri değerlendirin.
+    </p>
+  </header>
+
+  <main>
+    <section aria-labelledby="input-title">
+      <h2 id="input-title">Hava durumu verileri</h2>
+
+      <p>
+        Başlangıç için örnek veriler kullanabilirsiniz.
+      </p>
+
+      <form id="weather-form">
+        <div>
+          <label for="city">Şehir</label>
+          <input
+            type="text"
+            id="city"
+            name="city"
+            value="Ankara"
+            maxlength="60"
+            required
+          >
+        </div>
+
+        <div>
+          <label for="temperature">Sıcaklık (°C)</label>
+          <input
+            type="number"
+            id="temperature"
+            name="temperature"
+            value="35"
+            min="-50"
+            max="60"
+            step="0.1"
+            required
+          >
+        </div>
+
+        <div>
+          <label for="humidity">Bağıl nem (%)</label>
+          <input
+            type="number"
+            id="humidity"
+            name="humidity"
+            value="40"
+            min="0"
+            max="100"
+            step="1"
+            required
+          >
+        </div>
+
+        <div>
+          <label for="pm25">PM2.5 değeri (µg/m³)</label>
+          <input
+            type="number"
+            id="pm25"
+            name="pm25"
+            placeholder="Ör. 12"
+            min="0"
+            max="1000"
+            step="0.1"
+          >
+          <p>
+            İsteğe bağlıdır. Ölçüm yoksa boş bırakın.
+          </p>
+        </div>
+
+        <button type="submit">Riski değerlendir</button>
+      </form>
+
+      <p id="error-message" role="alert" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="result-title">
+      <h2 id="result-title">Değerlendirme sonucu</h2>
+
+      <p id="result-status">
+        Henüz değerlendirme yapılmadı.
+      </p>
+
+      <p id="result-description">
+        Verilerinizi girdikten sonra sonuç burada gösterilecek.
+      </p>
+
+      <div
+        id="risk-indicator"
+        role="status"
+        aria-live="polite"
+        aria-label="Risk değerlendirme göstergesi"
+      >
+        Risk seviyesi: Bekleniyor
+      </div>
+    </section>
+
+    <section aria-labelledby="data-title">
+      <h2 id="data-title">Veri bilgisi</h2>
+      <p id="data-source">
+        Şu anda formda örnek değerler bulunmaktadır.
+        Bunlar canlı hava durumu ölçümleri değildir.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Bu uygulama eğitim amaçlıdır; tıbbi teşhis veya
+      doğrulanmış sağlık tahmini sağlamaz.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
