@@ -311,6 +311,7 @@ fetchWeatherButton.addEventListener("click", async function () {
       pm25Info +
       " PM2.5 verisi hava kalitesi modelinden alınır ve mevcut risk seviyesine dahil edilmez.";
   } catch (error) {
+    pm25Input.value = "";
     weatherMessage.textContent =
       error.message ||
       "Bir hata oluştu. Lütfen tekrar deneyin.";
